@@ -226,8 +226,8 @@ function AddPaymentModal({ sale, onClose, onSuccess }) {
                   type="button"
                   onClick={() => setMethod(m)}
                   className={`flex flex-col items-center gap-1 py-2 rounded-xl border text-xs capitalize transition-all ${method === m
-                      ? 'border-primary-400 bg-primary-50 text-primary-700 font-semibold'
-                      : 'border-slate-200 text-slate-500 hover:border-slate-300'
+                    ? 'border-primary-400 bg-primary-50 text-primary-700 font-semibold'
+                    : 'border-slate-200 text-slate-500 hover:border-slate-300'
                     }`}
                 >
                   <span className="text-base">{METHOD_ICONS[m]}</span>
@@ -438,9 +438,18 @@ export default function Sales() {
 
   useEffect(() => {
     setLoading(true);
+    console.log('POS: Fetching products, sales, and customers...');
     Promise.all([salesAPI.getAll(), productsAPI.getAll(), customersAPI.getAll()])
-      .then(([s, p, c]) => { setSales(s.data); setProducts(p.data); setCustomers(c.data); })
-      .catch(console.error)
+      .then(([s, p, c]) => {
+        console.log('POS Data Loaded:', p.data.length, 'products found');
+        setSales(s.data);
+        setProducts(p.data);
+        setCustomers(c.data);
+      })
+      .catch(err => {
+        console.error('POS Data Fetch Error:', err);
+        alert('Error loading products. Please refresh.');
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -590,9 +599,9 @@ export default function Sales() {
 
             {/* LEFT — Products */}
             <div className="flex-1 flex flex-col bg-slate-50 min-h-0">
-              <div className="px-5 py-4 border-b border-slate-200 bg-white flex items-center justify-between">
-                <h2 className="font-bold text-slate-900 text-lg">🛒 New Sale</h2>
-                <button onClick={closePOS} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-500 text-lg">✕</button>
+              <div className="px-5 py-4 border-b border-indigo-100 bg-indigo-50 flex items-center justify-between">
+                <h2 className="font-bold text-indigo-900 text-lg">🛒 New Sale</h2>
+                <button onClick={closePOS} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-indigo-100 text-indigo-500 text-lg">✕</button>
               </div>
               <div className="px-4 py-3 border-b border-slate-200 bg-white">
                 <input
@@ -730,8 +739,8 @@ export default function Sales() {
                 {/* Change / Balance feedback */}
                 {tendered > 0 && (
                   <div className={`rounded-lg px-3 py-2 text-sm flex justify-between font-semibold mb-2 ${isPartial ? 'bg-amber-100 text-amber-700' :
-                      isOverpaying ? 'bg-blue-100 text-blue-700' :
-                        'bg-emerald-100 text-emerald-700'
+                    isOverpaying ? 'bg-blue-100 text-blue-700' :
+                      'bg-emerald-100 text-emerald-700'
                     }`}>
                     <span>{isPartial ? '⏳ Balance Due' : isOverpaying ? '💵 Change' : '✅ Exact'}</span>
                     <span>{isPartial ? fmt(balanceDue) : isOverpaying ? fmt(changeDue) : 'No change'}</span>
