@@ -448,7 +448,7 @@ export default function Sales() {
   const filteredProducts = useMemo(() => {
     const q = productSearch.toLowerCase();
     return products.filter(
-      (p) => p.stock_quantity > 0 &&
+      (p) =>
         (p.name.toLowerCase().includes(q) || (p.sku || '').toLowerCase().includes(q))
     );
   }, [products, productSearch]);
@@ -611,11 +611,13 @@ export default function Sales() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {filteredProducts.map((p) => {
                       const inCart = cart.find((c) => c.product_id === p.id);
+                      const isOutOfStock = p.stock_quantity <= 0;
                       return (
                         <button
                           key={p.id}
-                          onClick={() => addToCart(p)}
-                          className={`text-left p-3 rounded-xl border transition-all ${inCart ? 'bg-primary-50 border-primary-300 shadow-sm' : 'bg-white border-slate-200 hover:border-primary-300 hover:shadow-sm'}`}
+                          onClick={() => !isOutOfStock && addToCart(p)}
+                          disabled={isOutOfStock}
+                          className={`text-left p-3 rounded-xl border transition-all ${isOutOfStock ? 'opacity-60 bg-slate-50 border-slate-200 cursor-not-allowed' : inCart ? 'bg-primary-50 border-primary-300 shadow-sm' : 'bg-white border-slate-200 hover:border-primary-300 hover:shadow-sm'}`}
                         >
                           <div className="flex justify-between items-start gap-2">
                             <p className="font-medium text-slate-800 text-sm leading-tight">{p.name}</p>
@@ -623,7 +625,9 @@ export default function Sales() {
                           </div>
                           <div className="flex justify-between items-end mt-1.5">
                             <span className="text-primary-600 font-semibold text-sm">{fmt(p.price)}</span>
-                            <span className={`text-xs ${p.stock_quantity <= (p.low_stock_threshold || 10) ? 'text-amber-500' : 'text-slate-400'}`}>Stock: {p.stock_quantity}</span>
+                            <span className={`text-xs font-bold ${isOutOfStock ? 'text-red-500' : p.stock_quantity <= (p.low_stock_threshold || 10) ? 'text-amber-500' : 'text-slate-400'}`}>
+                              {isOutOfStock ? 'Out of Stock' : `Stock: ${p.stock_quantity}`}
+                            </span>
                           </div>
                         </button>
                       );
