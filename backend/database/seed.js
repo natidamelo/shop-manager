@@ -8,8 +8,8 @@ async function seed() {
   await mongoose.connect(config.mongoUri);
 
   const existing = await User.findOne({ email: 'admin@shop.com' });
+  const hash = await bcrypt.hash('admin123', 10);
   if (!existing) {
-    const hash = await bcrypt.hash('admin123', 10);
     await User.create({
       email: 'admin@shop.com',
       password_hash: hash,
@@ -18,7 +18,10 @@ async function seed() {
     });
     console.log('Default admin created: admin@shop.com / admin123');
   } else {
-    console.log('Admin user already exists.');
+    // Ensure password is reset to admin123 in case of database sync issues
+    existing.password_hash = hash;
+    await existing.save();
+    console.log('Admin user exists, password reset to admin123');
   }
 
   const catCount = await Category.countDocuments();

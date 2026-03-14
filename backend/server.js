@@ -16,11 +16,14 @@ import reportRoutes from './routes/reportRoutes.js';
 const app = express();
 
 app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'http://localhost:5173',
-    'https://shop-manager-livid-six.vercel.app'
-  ],
+  origin: (origin, callback) => {
+    // Allow any Vercel subdomain for this user + localhost
+    if (!origin || origin.includes('vercel.app') || origin.includes('localhost')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 app.use(express.json());
