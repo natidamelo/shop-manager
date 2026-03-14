@@ -134,14 +134,17 @@ export default function Expenses() {
                         <form onSubmit={handleSubmit} className="p-6 space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
-                                <select
+                                <input
+                                    list="expense-categories"
                                     className="input"
                                     value={formData.category}
                                     onChange={e => setFormData({ ...formData, category: e.target.value })}
+                                    placeholder="Select or type category..."
                                     required
-                                >
-                                    {EXPENSE_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-                                </select>
+                                />
+                                <datalist id="expense-categories">
+                                    {EXPENSE_CATEGORIES.map(c => <option key={c} value={c} />)}
+                                </datalist>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 mb-1">Amount ($)</label>
