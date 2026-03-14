@@ -74,4 +74,11 @@ export const reportsAPI = {
   getFinancial: (params) => api.get('/reports/financial', { params }),
 };
 
+export const expensesAPI = {
+  getAll: (params) => api.get('/expenses', { params }),
+  create: (data) => api.post('/expenses', data),
+  update: (id, data) => api.put(`/expenses/${id}`, data),
+  delete: (id) => api.delete(`/expenses/${id}`),
+};
+
 export default api;

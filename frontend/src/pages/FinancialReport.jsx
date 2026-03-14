@@ -61,8 +61,8 @@ function KpiCard({ label, value, sub, accent = false, icon }) {
     return (
         <div
             className={`rounded-xl p-5 flex flex-col gap-1 shadow-sm border ${accent
-                    ? 'bg-primary-600 text-white border-primary-700'
-                    : 'bg-white text-slate-800 border-slate-200'
+                ? 'bg-primary-600 text-white border-primary-700'
+                : 'bg-white text-slate-800 border-slate-200'
                 }`}
         >
             <div className="flex items-center justify-between">
@@ -246,8 +246,37 @@ export default function FinancialReport() {
                         <KpiCard
                             label="Cost of Goods"
                             value={fmt(s?.cogs)}
-                            sub={`Discount: ${fmt(s?.totalDiscount)}`}
+                            sub={`Units Sold: ${fmtN(s?.unitsSold)}`}
                             icon="📦"
+                        />
+                    </div>
+
+                    {/* ── KPI Row 2 — Profit & Expenses ── */}
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <KpiCard
+                            label="Net Profit"
+                            value={fmt(s?.netProfit)}
+                            sub={`Net Margin: ${pct(s?.netMargin)}`}
+                            accent
+                            icon="💎"
+                        />
+                        <KpiCard
+                            label="Op. Expenses"
+                            value={fmt(s?.totalExpenses)}
+                            sub={`${report.expensesByCategory?.length || 0} categories`}
+                            icon="💸"
+                        />
+                        <KpiCard
+                            label="Discounts"
+                            value={fmt(s?.totalDiscount)}
+                            sub="Revenue reduction"
+                            icon="🎟️"
+                        />
+                        <KpiCard
+                            label="Tax Collected"
+                            value={fmt(s?.totalTax)}
+                            sub="Liability"
+                            icon="🏛️"
                         />
                     </div>
 
@@ -339,7 +368,9 @@ export default function FinancialReport() {
                                 { label: '+ Tax Collected', value: s?.totalTax, cls: 'text-slate-700' },
                                 { label: '= Net Revenue', value: (s?.totalRevenue ?? 0) - (s?.totalDiscount ?? 0) + (s?.totalTax ?? 0), cls: 'text-slate-900 font-semibold border-t-2 border-slate-300 pt-1' },
                                 { label: '− Cost of Goods Sold (COGS)', value: -(s?.cogs ?? 0), cls: 'text-red-600' },
-                                { label: '= Gross Profit', value: s?.grossProfit, cls: 'text-emerald-700 font-bold text-base border-t-2 border-slate-300 pt-1' },
+                                { label: '= Gross Profit', value: s?.grossProfit, cls: 'text-emerald-700 font-bold border-t-2 border-slate-300 pt-1' },
+                                { label: '− Operational Expenses', value: -(s?.totalExpenses ?? 0), cls: 'text-red-600' },
+                                { label: '= Net Profit', value: s?.netProfit, cls: 'text-primary-700 font-black text-base border-t-2 border-slate-900 pt-1' },
                             ].map((row, i) => (
                                 <div key={i} className={`flex justify-between items-center py-2.5 ${row.cls}`}>
                                     <span className="text-sm">{row.label}</span>
@@ -351,14 +382,9 @@ export default function FinancialReport() {
                         </div>
                         <div className="mt-4 p-3 bg-slate-50 rounded-lg">
                             <p className="text-xs text-slate-500">
-                                Gross Margin:{' '}
-                                <strong className={s?.grossMargin >= 0 ? 'text-emerald-600' : 'text-red-600'}>
-                                    {pct(s?.grossMargin)}
-                                </strong>
-                                {' '}· Total Units Sold:{' '}
-                                <strong className="text-slate-700">{fmtN(s?.unitsSold)}</strong>
-                                {' '}· Total Orders:{' '}
-                                <strong className="text-slate-700">{fmtN(s?.totalOrders)}</strong>
+                                Gross Margin: <strong className="text-emerald-600">{pct(s?.grossMargin)}</strong>
+                                {' '}· Net Margin: <strong className="text-primary-600">{pct(s?.netMargin)}</strong>
+                                {' '}· Total Orders: <strong className="text-slate-700">{fmtN(s?.totalOrders)}</strong>
                             </p>
                         </div>
                     </div>

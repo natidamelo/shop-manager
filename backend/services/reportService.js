@@ -1,5 +1,6 @@
 import Sale from '../models/Sale.js';
 import Product from '../models/Product.js';
+import Expense from '../models/Expense.js';
 
 /**
  * Build date range query helper
@@ -216,11 +217,37 @@ export async function getFinancialReport({ from, to } = {}) {
         },
     ]);
 
+    // ── 8. Expense aggregation ───────────────────────────────────────────────────
+    const expenseMatch = {};
+    if (dateQ) expenseMatch.date = dateQ;
+    const [expenseAgg] = await Expense.aggregate([
+        { $match: expenseMatch },
+        {
+            $group: {
+                _id: null,
+                totalExpenses: { $sum: '$amount' },
+            },
+        },
+    ]);
+    const expensesByCategory = await Expense.aggregate([
+        { $match: expenseMatch },
+        {
+            $group: {
+                _id: '$category',
+                amount: { $sum: '$amount' },
+            },
+        },
+        { $sort: { amount: -1 } },
+    ]);
+
     // ── Assemble ─────────────────────────────────────────────────────────────────
     const totalRevenue = revenueAgg?.totalRevenue ?? 0;
     const cogs = cogsAgg[0]?.cogs ?? 0;
     const grossProfit = totalRevenue - cogs;
+    const totalExpenses = expenseAgg?.totalExpenses ?? 0;
+    const netProfit = grossProfit - totalExpenses;
     const grossMargin = totalRevenue > 0 ? (grossProfit / totalRevenue) * 100 : 0;
+    const netMargin = totalRevenue > 0 ? (netProfit / totalRevenue) * 100 : 0;
 
     return {
         period: { from: from || null, to: to || null },
@@ -233,8 +260,12 @@ export async function getFinancialReport({ from, to } = {}) {
             cogs,
             grossProfit,
             grossMargin,
+            totalExpenses,
+            netProfit,
+            netMargin,
             unitsSold: cogsAgg[0]?.unitsSold ?? 0,
         },
+        expensesByCategory: expensesByCategory.map(e => ({ category: e._id, amount: e.amount })),
         inventory: {
             inventoryValue: inventoryAgg?.inventoryValue ?? 0,
             retailValue: inventoryAgg?.retailValue ?? 0,
