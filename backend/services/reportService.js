@@ -35,29 +35,15 @@ export async function getFinancialReport({ from, to } = {}) {
         },
     ]);
 
-    // ── 2. COGS from sale items × product cost_price ────────────────────────────
+    // ── 2. COGS from saved unit_cost in sale items ──────────────────────────────
     const cogsAgg = await Sale.aggregate([
         { $match: matchStage },
         { $unwind: '$items' },
         {
-            $lookup: {
-                from: 'products',
-                localField: 'items.product',
-                foreignField: '_id',
-                as: 'prod',
-            },
-        },
-        { $unwind: { path: '$prod', preserveNullAndEmptyArrays: true } },
-        {
             $group: {
                 _id: null,
                 cogs: {
-                    $sum: {
-                        $multiply: [
-                            '$items.quantity',
-                            { $ifNull: ['$prod.cost_price', 0] },
-                        ],
-                    },
+                    $sum: { $multiply: ['$items.quantity', { $ifNull: ['$items.unit_cost', 0] }] },
                 },
                 unitsSold: { $sum: '$items.quantity' },
             },

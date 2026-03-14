@@ -83,6 +83,7 @@ export async function createSale(data, userId) {
       product_name: product.name,
       quantity: item.quantity,
       unit_price: item.unit_price,
+      unit_cost: product.cost_price || 0,
       subtotal: item.subtotal,
     });
     await Product.findByIdAndUpdate(item.product_id, {

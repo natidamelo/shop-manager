@@ -5,6 +5,7 @@ const saleItemSchema = new mongoose.Schema({
   product_name: { type: String },
   quantity: { type: Number, required: true },
   unit_price: { type: Number, required: true },
+  unit_cost: { type: Number, required: true, default: 0 },
   subtotal: { type: Number, required: true },
 });
 
