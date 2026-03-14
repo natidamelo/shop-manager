@@ -594,11 +594,11 @@ export default function Sales() {
 
       {/* ── POS Modal ── */}
       {posOpen && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-stretch p-4">
-          <div className="flex flex-col lg:flex-row w-full max-w-5xl mx-auto bg-white rounded-2xl overflow-hidden shadow-2xl">
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-2 sm:p-4">
+          <div className="flex flex-col lg:flex-row w-full h-full max-h-[92vh] lg:max-h-[800px] max-w-6xl mx-auto bg-white rounded-2xl overflow-hidden shadow-2xl relative">
 
             {/* LEFT — Products */}
-            <div className="flex-[2] flex flex-col bg-slate-50 min-h-[40vh] lg:min-h-0">
+            <div className="flex-[1.5] flex flex-col bg-slate-50 min-h-0 border-b lg:border-b-0 border-slate-200">
               <div className="px-5 py-4 border-b border-indigo-100 bg-indigo-50 flex items-center justify-between">
                 <h2 className="font-bold text-indigo-900 text-lg">🛒 New Sale</h2>
                 <button onClick={closePOS} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-indigo-100 text-indigo-500 text-lg">✕</button>
@@ -647,7 +647,7 @@ export default function Sales() {
             </div>
 
             {/* RIGHT — Cart + Payment */}
-            <div className="w-full lg:w-96 flex flex-col border-l border-slate-200 bg-white">
+            <div className="flex-1 lg:w-96 flex flex-col bg-white min-h-0">
               {/* Customer + Notes */}
               <div className="px-5 py-3 border-b border-slate-100 space-y-2">
                 <div>
