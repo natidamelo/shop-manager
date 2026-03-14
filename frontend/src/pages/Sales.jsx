@@ -598,7 +598,7 @@ export default function Sales() {
           <div className="flex flex-col lg:flex-row w-full h-full max-h-[92vh] lg:max-h-[800px] max-w-6xl mx-auto bg-white rounded-2xl overflow-hidden shadow-2xl relative">
 
             {/* LEFT — Products */}
-            <div className="flex-[1.5] flex flex-col bg-slate-50 min-h-0 border-b lg:border-b-0 border-slate-200">
+            <div className="flex-1 lg:flex-[1.5] flex flex-col bg-slate-50 min-h-0 border-b lg:border-b-0 lg:border-r border-slate-200">
               <div className="px-5 py-4 border-b border-indigo-100 bg-indigo-50 flex items-center justify-between">
                 <h2 className="font-bold text-indigo-900 text-lg">🛒 New Sale</h2>
                 <button onClick={closePOS} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-indigo-100 text-indigo-500 text-lg">✕</button>
@@ -648,125 +648,127 @@ export default function Sales() {
 
             {/* RIGHT — Cart + Payment */}
             <div className="flex-1 lg:w-96 flex flex-col bg-white min-h-0">
-              {/* Customer + Notes */}
-              <div className="px-5 py-3 border-b border-slate-100 space-y-2">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Customer</label>
-                  <select value={customerId} onChange={(e) => setCustomerId(e.target.value)} className="input text-sm py-2">
-                    <option value="">Walk-in Customer</option>
-                    {customers.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Notes</label>
-                  <input className="input text-sm py-2" placeholder="Optional…" value={notes} onChange={(e) => setNotes(e.target.value)} />
-                </div>
-              </div>
-
-              {/* Cart items */}
-              <div className="flex-1 overflow-y-auto px-5 py-3">
-                {cart.length === 0 ? (
-                  <div className="text-center py-10 text-slate-300">
-                    <p className="text-4xl mb-2">🛍️</p><p className="text-sm">Add products to begin</p>
+              <div className="flex-1 overflow-y-auto">
+                {/* Customer + Notes */}
+                <div className="px-5 py-3 border-b border-slate-100 space-y-2">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Customer</label>
+                    <select value={customerId} onChange={(e) => setCustomerId(e.target.value)} className="input text-sm py-2">
+                      <option value="">Walk-in Customer</option>
+                      {customers.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    </select>
                   </div>
-                ) : (
-                  <div className="space-y-1">
-                    {cart.map((item) => (
-                      <div key={item.product_id} className="flex items-center gap-2 py-2 border-b border-slate-100">
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-slate-800 truncate">{item.product_name}</p>
-                          <p className="text-xs text-slate-400">{fmt(item.unit_price)} each</p>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Notes</label>
+                    <input className="input text-sm py-2" placeholder="Optional…" value={notes} onChange={(e) => setNotes(e.target.value)} />
+                  </div>
+                </div>
+
+                {/* Cart items */}
+                <div className="px-5 py-3">
+                  <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Items</h3>
+                  {cart.length === 0 ? (
+                    <div className="text-center py-6 text-slate-300">
+                      <p className="text-2xl mb-1">🛍️</p><p className="text-xs">Add products</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-1">
+                      {cart.map((item) => (
+                        <div key={item.product_id} className="flex items-center gap-2 py-2 border-b border-slate-100">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-slate-800 truncate">{item.product_name}</p>
+                            <p className="text-xs text-slate-400">{fmt(item.unit_price)} each</p>
+                          </div>
+                          <div className="flex items-center gap-1 shrink-0">
+                            <button onClick={() => updateQty(item.product_id, item.quantity - 1)} className="w-7 h-7 flex items-center justify-center rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-sm">−</button>
+                            <span className="w-7 text-center text-sm font-bold text-slate-800">{item.quantity}</span>
+                            <button onClick={() => updateQty(item.product_id, item.quantity + 1)} disabled={item.quantity >= item.max_stock} className="w-7 h-7 flex items-center justify-center rounded-lg bg-slate-100 hover:bg-slate-200 disabled:opacity-40 text-slate-600 font-bold text-sm">+</button>
+                          </div>
+                          <span className="text-sm font-semibold w-16 text-right">{fmt(item.quantity * item.unit_price)}</span>
+                          <button onClick={() => removeFromCart(item.product_id)} className="text-red-400 hover:text-red-600 text-xs ml-1">✕</button>
                         </div>
-                        <div className="flex items-center gap-1 shrink-0">
-                          <button onClick={() => updateQty(item.product_id, item.quantity - 1)} className="w-7 h-7 flex items-center justify-center rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-sm">−</button>
-                          <span className="w-7 text-center text-sm font-bold text-slate-800">{item.quantity}</span>
-                          <button onClick={() => updateQty(item.product_id, item.quantity + 1)} disabled={item.quantity >= item.max_stock} className="w-7 h-7 flex items-center justify-center rounded-lg bg-slate-100 hover:bg-slate-200 disabled:opacity-40 text-slate-600 font-bold text-sm">+</button>
-                        </div>
-                        <span className="text-sm font-semibold w-16 text-right">{fmt(item.quantity * item.unit_price)}</span>
-                        <button onClick={() => removeFromCart(item.product_id)} className="text-red-400 hover:text-red-600 text-xs ml-1">✕</button>
-                      </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Discount & Tax */}
+                <div className="px-5 py-3 border-t border-slate-100">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1">Discount ($)</label>
+                      <input type="number" min="0" step="0.01" className="input text-sm py-2" placeholder="0.00" value={discount} onChange={(e) => setDiscount(e.target.value)} />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1">Tax ($)</label>
+                      <input type="number" min="0" step="0.01" className="input text-sm py-2" placeholder="0.00" value={tax} onChange={(e) => setTax(e.target.value)} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Payment section */}
+                <div className="px-5 py-3 border-t border-slate-100 bg-slate-50">
+                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Payment</label>
+                  <div className="grid grid-cols-4 gap-1.5 mb-3">
+                    {PAYMENT_METHODS.map((m) => (
+                      <button
+                        key={m}
+                        type="button"
+                        onClick={() => setPaymentMethod(m)}
+                        className={`flex flex-col items-center gap-0.5 py-1.5 rounded-xl border text-xs capitalize transition-all ${paymentMethod === m ? 'border-primary-400 bg-primary-50 text-primary-700 font-semibold' : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'}`}
+                      >
+                        <span>{METHOD_ICONS[m]}</span>{m}
+                      </button>
                     ))}
                   </div>
-                )}
-              </div>
 
-              {/* Discount & Tax */}
-              <div className="px-5 py-3 border-t border-slate-100">
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1">Discount ($)</label>
-                    <input type="number" min="0" step="0.01" className="input text-sm py-2" placeholder="0.00" value={discount} onChange={(e) => setDiscount(e.target.value)} />
+                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Amount Tendered</label>
+                  <div className="relative mb-2">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-medium">$</span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      className={`input pl-7 text-sm py-2 ${isPartial ? 'border-amber-400 bg-amber-50' : ''}`}
+                      placeholder={totalAmount.toFixed(2)}
+                      value={amountTendered}
+                      onChange={(e) => setAmountTendered(e.target.value)}
+                    />
                   </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1">Tax ($)</label>
-                    <input type="number" min="0" step="0.01" className="input text-sm py-2" placeholder="0.00" value={tax} onChange={(e) => setTax(e.target.value)} />
-                  </div>
+
+                  {tendered > 0 && (
+                    <div className={`rounded-lg px-3 py-2 text-sm flex justify-between font-semibold mb-2 ${isPartial ? 'bg-amber-100 text-amber-700' :
+                      isOverpaying ? 'bg-blue-100 text-blue-700' :
+                        'bg-emerald-100 text-emerald-700'
+                      }`}>
+                      <span>{isPartial ? '⏳ Balance Due' : isOverpaying ? '💵 Change' : '✅ Exact'}</span>
+                      <span>{isPartial ? fmt(balanceDue) : isOverpaying ? fmt(changeDue) : 'No change'}</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {/* Payment section */}
-              <div className="px-5 py-3 border-t border-slate-100 bg-slate-50">
-                {/* Payment method */}
-                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Payment Method</label>
-                <div className="grid grid-cols-4 gap-1.5 mb-3">
-                  {PAYMENT_METHODS.map((m) => (
-                    <button
-                      key={m}
-                      type="button"
-                      onClick={() => setPaymentMethod(m)}
-                      className={`flex flex-col items-center gap-0.5 py-1.5 rounded-xl border text-xs capitalize transition-all ${paymentMethod === m ? 'border-primary-400 bg-primary-50 text-primary-700 font-semibold' : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'}`}
-                    >
-                      <span>{METHOD_ICONS[m]}</span>{m}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Amount tendered */}
-                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Amount Tendered</label>
-                <div className="relative mb-2">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-medium">$</span>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    className={`input pl-7 text-sm py-2 ${isPartial ? 'border-amber-400 bg-amber-50' : ''}`}
-                    placeholder={totalAmount.toFixed(2)}
-                    value={amountTendered}
-                    onChange={(e) => setAmountTendered(e.target.value)}
-                  />
-                </div>
-
-                {/* Change / Balance feedback */}
-                {tendered > 0 && (
-                  <div className={`rounded-lg px-3 py-2 text-sm flex justify-between font-semibold mb-2 ${isPartial ? 'bg-amber-100 text-amber-700' :
-                    isOverpaying ? 'bg-blue-100 text-blue-700' :
-                      'bg-emerald-100 text-emerald-700'
-                    }`}>
-                    <span>{isPartial ? '⏳ Balance Due' : isOverpaying ? '💵 Change' : '✅ Exact'}</span>
-                    <span>{isPartial ? fmt(balanceDue) : isOverpaying ? fmt(changeDue) : 'No change'}</span>
-                  </div>
-                )}
-
-                {isPartial && (
-                  <p className="text-xs text-amber-600 mb-2">Partial payment — remainder will be tracked as balance due.</p>
-                )}
-
-                {/* Totals */}
+              {/* STICKY BOTTOM — Totals + Submit */}
+              <div className="px-5 py-4 border-t border-slate-200 bg-slate-50 shadow-[0_-4px_10px_rgba(0,0,0,0.03)]">
                 <div className="space-y-1 text-sm mb-3">
-                  <div className="flex justify-between text-slate-500"><span>Total ({cart.length} item{cart.length !== 1 ? 's' : ''})</span><span>{fmt(totalAmount)}</span></div>
-                  {discountAmt > 0 && <div className="flex justify-between text-red-500"><span>Discount</span><span>−{fmt(discountAmt)}</span></div>}
-                  {taxAmt > 0 && <div className="flex justify-between text-slate-500"><span>Tax</span><span>+{fmt(taxAmt)}</span></div>}
-                  <div className="flex justify-between font-bold text-slate-900 border-t border-slate-200 pt-1.5">
-                    <span>Grand Total</span><span className="text-emerald-600">{fmt(totalAmount)}</span>
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-slate-900 text-base">Grand Total</span>
+                    <span className="text-xl font-black text-emerald-600">{fmt(totalAmount)}</span>
                   </div>
+                  {(discountAmt > 0 || taxAmt > 0) && (
+                    <div className="flex justify-between text-[10px] text-slate-400 uppercase tracking-wider font-semibold">
+                      <span>{discountAmt > 0 ? `Disc: -${fmt(discountAmt)}` : ''}</span>
+                      <span>{taxAmt > 0 ? `Tax: +${fmt(taxAmt)}` : ''}</span>
+                    </div>
+                  )}
                 </div>
 
                 <button
                   onClick={submitSale}
                   disabled={cart.length === 0 || submitting}
-                  className="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-base transition-colors"
+                  className="w-full py-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-lg shadow-lg shadow-emerald-200 transition-all active:scale-[0.98]"
                 >
-                  {submitting ? 'Processing…' : isPartial ? '⏳ Save with Partial Payment' : '✅ Complete Sale'}
+                  {submitting ? 'Processing…' : isPartial ? '⏳ Save Partial' : '✅ Complete Sale'}
                 </button>
               </div>
             </div>
