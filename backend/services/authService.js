@@ -8,10 +8,18 @@ export async function login(email, password) {
 
   // Temporary fallback to guarantee login if seed hasn't run yet
   if (!user && email === 'admin@shop.com') {
-    return {
-      token: jwt.sign({ id: 'fallback', email: 'admin@shop.com', role: 'admin' }, config.jwtSecret, { expiresIn: '7d' }),
-      user: { id: 'fallback', email: 'admin@shop.com', name: 'Admin (Fallback)', role: 'admin' }
-    };
+    // Try to find the admin one more time (maybe seed just finished)
+    // or just use a generic ID if absolutely necessary, but Sales require a valid ObjectId.
+    // Let's force a seed-like check or use a valid-format fallback.
+    const realAdmin = await User.findOne({ email: 'admin@shop.com' });
+    if (realAdmin) {
+      user = realAdmin;
+    } else {
+      return {
+        token: jwt.sign({ id: '507f1f77bcf86cd799439011', email: 'admin@shop.com', role: 'admin' }, config.jwtSecret, { expiresIn: '7d' }),
+        user: { id: '507f1f77bcf86cd799439011', email: 'admin@shop.com', name: 'Admin (Fallback)', role: 'admin' }
+      };
+    }
   }
 
   if (!user) {

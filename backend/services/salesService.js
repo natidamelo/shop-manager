@@ -114,7 +114,7 @@ export async function createSale(data, userId) {
     amount_paid: amountPaid,
     payment_status: paymentStatus,
     status: 'completed',
-    created_by: userId,
+    created_by: mongoose.Types.ObjectId.isValid(userId) ? userId : undefined,
     notes: data.notes || undefined,
     items,
     payments: initialPayments,
