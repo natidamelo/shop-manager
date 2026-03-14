@@ -10,6 +10,7 @@ const navItems = [
   { to: '/sales', label: 'Sales', icon: '🛒' },
   { to: '/expenses', label: 'Expenses', icon: '💸' },
   { to: '/reports', label: 'Reports', icon: '📑' },
+  { to: '/users', label: 'Users', icon: '👤', adminOnly: true },
 ];
 
 export default function Layout() {
@@ -37,21 +38,23 @@ export default function Layout() {
         </button>
       </div>
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-        {navItems.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            end={item.to === '/'}
-            onClick={closeSidebar}
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors min-h-[44px] ${isActive ? 'bg-primary-600 text-white' : 'hover:bg-slate-800 text-slate-300'
-              }`
-            }
-          >
-            <span>{item.icon}</span>
-            <span>{item.label}</span>
-          </NavLink>
-        ))}
+        {navItems
+          .filter(item => !item.adminOnly || user?.role === 'admin')
+          .map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.to === '/'}
+              onClick={closeSidebar}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors min-h-[44px] ${isActive ? 'bg-primary-600 text-white' : 'hover:bg-slate-800 text-slate-300'
+                }`
+              }
+            >
+              <span>{item.icon}</span>
+              <span>{item.label}</span>
+            </NavLink>
+          ))}
       </nav>
       <div className="p-4 border-t border-slate-700">
         <div className="flex items-center gap-3 px-3 py-2 text-slate-400 text-sm">

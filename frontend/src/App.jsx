@@ -9,6 +9,7 @@ import Sales from './pages/Sales';
 import Categories from './pages/Categories';
 import FinancialReport from './pages/FinancialReport';
 import Expenses from './pages/Expenses';
+import Users from './pages/Users';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -42,6 +43,7 @@ export default function App() {
         <Route path="categories" element={<Categories />} />
         <Route path="reports" element={<FinancialReport />} />
         <Route path="expenses" element={<Expenses />} />
+        <Route path="users" element={<Users />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

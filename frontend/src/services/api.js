@@ -81,4 +81,12 @@ export const expensesAPI = {
   delete: (id) => api.delete(`/expenses/${id}`),
 };
 
+export const usersAPI = {
+  getAll: () => api.get('/users'),
+  create: (data) => api.post('/users', data),
+  update: (id, data) => api.put(`/users/${id}`, data),
+  updatePassword: (id, password) => api.put(`/users/${id}/password`, { password }),
+  delete: (id) => api.delete(`/users/${id}`),
+};
+
 export default api;
