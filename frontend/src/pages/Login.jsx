@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authAPI } from '../services/api';
 
@@ -66,9 +66,14 @@ export default function Login() {
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
           </form>
-          <p className="mt-6 text-center text-slate-500 text-sm">
-            Default: admin@shop.com / admin123
-          </p>
+          <div className="mt-8 pt-6 border-t border-slate-100 text-center text-sm">
+            <p className="text-slate-500">
+              Don't have a shop yet?{' '}
+              <Link to="/register" className="text-primary-600 hover:text-primary-700 font-semibold">
+                Create a Shop
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>

@@ -11,6 +11,7 @@ const productSchema = new mongoose.Schema(
     stock_quantity: { type: Number, required: true, default: 0 },
     low_stock_threshold: { type: Number, default: 10 },
     unit: { type: String, default: 'pcs' },
+    shop: { type: mongoose.Schema.Types.ObjectId, ref: 'Shop', required: true },
   },
   { timestamps: true, toJSON: { virtuals: true } }
 );

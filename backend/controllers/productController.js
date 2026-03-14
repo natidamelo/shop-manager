@@ -8,6 +8,7 @@ export async function getProducts(req, res, next) {
       categoryId: categoryId || undefined,
       search: search || undefined,
       lowStockOnly: lowStock === 'true',
+      shopId: req.user.shop_id,
     });
     res.json(products);
   } catch (err) {
@@ -17,7 +18,7 @@ export async function getProducts(req, res, next) {
 
 export async function getProduct(req, res, next) {
   try {
-    const product = await productService.getProductById(req.params.id);
+    const product = await productService.getProductById(req.params.id, req.user.shop_id);
     if (!product) throw new AppError('Product not found', 404);
     res.json(product);
   } catch (err) {
@@ -27,7 +28,7 @@ export async function getProduct(req, res, next) {
 
 export async function createProduct(req, res, next) {
   try {
-    const product = await productService.createProduct(req.body);
+    const product = await productService.createProduct({ ...req.body, shopId: req.user.shop_id });
     res.status(201).json(product);
   } catch (err) {
     next(err);
@@ -36,7 +37,7 @@ export async function createProduct(req, res, next) {
 
 export async function updateProduct(req, res, next) {
   try {
-    const product = await productService.updateProduct(req.params.id, req.body);
+    const product = await productService.updateProduct(req.params.id, { ...req.body, shopId: req.user.shop_id });
     if (!product) throw new AppError('Product not found', 404);
     res.json(product);
   } catch (err) {
@@ -46,7 +47,7 @@ export async function updateProduct(req, res, next) {
 
 export async function deleteProduct(req, res, next) {
   try {
-    const product = await productService.deleteProduct(req.params.id);
+    const product = await productService.deleteProduct(req.params.id, req.user.shop_id);
     if (!product) throw new AppError('Product not found', 404);
     res.status(204).send();
   } catch (err) {

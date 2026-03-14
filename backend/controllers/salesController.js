@@ -4,7 +4,7 @@ import { AppError } from '../middleware/errorHandler.js';
 export async function getSales(req, res, next) {
   try {
     const { from, to, customerId, paymentStatus } = req.query;
-    const sales = await salesService.getAllSales({ from, to, customerId, paymentStatus });
+    const sales = await salesService.getAllSales({ from, to, customerId, paymentStatus, shopId: req.user.shop_id });
     res.json(sales);
   } catch (err) {
     next(err);
@@ -13,7 +13,7 @@ export async function getSales(req, res, next) {
 
 export async function getSale(req, res, next) {
   try {
-    const sale = await salesService.getSaleById(req.params.id);
+    const sale = await salesService.getSaleById(req.params.id, req.user.shop_id);
     if (!sale) throw new AppError('Sale not found', 404);
     res.json(sale);
   } catch (err) {
@@ -30,7 +30,8 @@ export async function createSale(req, res, next) {
     }
     const sale = await salesService.createSale(
       { items, total_amount, customer_id, discount, tax, notes, amount_paid, payment_method },
-      req.user.id
+      req.user.id,
+      req.user.shop_id
     );
     res.status(201).json(sale);
   } catch (err) {
@@ -44,7 +45,7 @@ export async function addPayment(req, res, next) {
     if (!amount || parseFloat(amount) <= 0) {
       throw new AppError('Payment amount must be greater than 0', 400);
     }
-    const sale = await salesService.addPayment(req.params.id, { amount, method, note });
+    const sale = await salesService.addPayment(req.params.id, { amount, method, note }, req.user.shop_id);
     if (!sale) throw new AppError('Sale not found', 404);
     res.json(sale);
   } catch (err) {

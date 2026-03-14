@@ -4,6 +4,7 @@ const categorySchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
     description: { type: String },
+    shop: { type: mongoose.Schema.Types.ObjectId, ref: 'Shop', required: true },
   },
   { timestamps: { createdAt: true, updatedAt: false }, toJSON: { virtuals: true } }
 );

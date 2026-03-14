@@ -4,7 +4,7 @@ import { AppError } from '../middleware/errorHandler.js';
 
 export async function getUsers(req, res, next) {
     try {
-        const users = await User.find().select('-password_hash').sort({ name: 1 });
+        const users = await User.find({ shop: req.user.shop_id }).select('-password_hash').sort({ name: 1 });
         res.json(users);
     } catch (err) {
         next(err);
@@ -19,7 +19,7 @@ export async function createUser(req, res, next) {
         if (existing) throw new AppError('Email already in use', 400);
 
         const password_hash = await bcrypt.hash(password, 10);
-        const user = await User.create({ email, password_hash, name, role });
+        const user = await User.create({ email, password_hash, name, role, shop: req.user.shop_id });
 
         const userObj = user.toJSON();
         delete userObj.password_hash;
@@ -32,8 +32,8 @@ export async function createUser(req, res, next) {
 export async function updateUser(req, res, next) {
     try {
         const { email, name, role } = req.body;
-        const user = await User.findByIdAndUpdate(
-            req.params.id,
+        const user = await User.findOneAndUpdate(
+            { _id: req.params.id, shop: req.user.shop_id },
             { email, name, role },
             { new: true, runValidators: true }
         ).select('-password_hash');
@@ -53,8 +53,8 @@ export async function updatePassword(req, res, next) {
         }
 
         const password_hash = await bcrypt.hash(password, 10);
-        const user = await User.findByIdAndUpdate(
-            req.params.id,
+        const user = await User.findOneAndUpdate(
+            { _id: req.params.id, shop: req.user.shop_id },
             { password_hash },
             { new: true }
         );
@@ -71,7 +71,7 @@ export async function deleteUser(req, res, next) {
         if (req.params.id === req.user.id) {
             throw new AppError('You cannot delete your own account', 400);
         }
-        const user = await User.findByIdAndDelete(req.params.id);
+        const user = await User.findOneAndDelete({ _id: req.params.id, shop: req.user.shop_id });
         if (!user) throw new AppError('User not found', 404);
         res.status(204).end();
     } catch (err) {

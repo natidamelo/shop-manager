@@ -7,6 +7,7 @@ const customerSchema = new mongoose.Schema(
     email: { type: String },
     address: { type: String },
     notes: { type: String },
+    shop: { type: mongoose.Schema.Types.ObjectId, ref: 'Shop', required: true },
   },
   { timestamps: true, toJSON: { virtuals: true } }
 );

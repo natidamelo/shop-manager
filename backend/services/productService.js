@@ -2,7 +2,9 @@ import mongoose from 'mongoose';
 import Product from '../models/Product.js';
 
 export async function getAllProducts(filters = {}) {
-  const query = {};
+  const query = { shop: filters.shopId };
+
+  if (!filters.shopId) return [];
 
   if (filters.categoryId) {
     query.category = new mongoose.Types.ObjectId(filters.categoryId);
@@ -30,8 +32,8 @@ export async function getAllProducts(filters = {}) {
   }));
 }
 
-export async function getProductById(id) {
-  const product = await Product.findById(id).populate('category', 'name').lean();
+export async function getProductById(id, shopId) {
+  const product = await Product.findOne({ _id: id, shop: shopId }).populate('category', 'name').lean();
   if (!product) return null;
   return {
     ...product,
@@ -52,8 +54,9 @@ export async function createProduct(data) {
     stock_quantity: data.stock_quantity ?? 0,
     low_stock_threshold: data.low_stock_threshold ?? 10,
     unit: data.unit || 'pcs',
+    shop: data.shopId,
   });
-  return getProductById(product._id);
+  return getProductById(product._id, data.shopId);
 }
 
 export async function updateProduct(id, data) {
@@ -68,11 +71,11 @@ export async function updateProduct(id, data) {
   if (data.low_stock_threshold !== undefined) update.low_stock_threshold = data.low_stock_threshold;
   if (data.unit !== undefined) update.unit = data.unit;
 
-  const product = await Product.findByIdAndUpdate(id, update, { new: true });
-  return product ? getProductById(product._id) : null;
+  const product = await Product.findOneAndUpdate({ _id: id, shop: data.shopId }, update, { new: true });
+  return product ? getProductById(product._id, data.shopId) : null;
 }
 
-export async function deleteProduct(id) {
-  const result = await Product.findByIdAndDelete(id);
+export async function deleteProduct(id, shopId) {
+  const result = await Product.findOneAndDelete({ _id: id, shop: shopId });
   return result;
 }

@@ -10,6 +10,7 @@ import Categories from './pages/Categories';
 import FinancialReport from './pages/FinancialReport';
 import Expenses from './pages/Expenses';
 import Users from './pages/Users';
+import Register from './pages/Register';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -28,6 +29,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
       <Route
         path="/"
         element={

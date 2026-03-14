@@ -16,8 +16,9 @@ function buildDateQuery(from, to) {
     return Object.keys(q).length ? q : null;
 }
 
-export async function getFinancialReport({ from, to } = {}) {
-    const matchStage = { status: 'completed' };
+export async function getFinancialReport({ from, to, shopId } = {}) {
+    if (!shopId) throw new Error('Shop ID required');
+    const matchStage = { status: 'completed', shop: new mongoose.Types.ObjectId(shopId) };
     const dateQ = buildDateQuery(from, to);
     if (dateQ) matchStage.createdAt = dateQ;
 
@@ -207,6 +208,7 @@ export async function getFinancialReport({ from, to } = {}) {
 
     // ── 7. Inventory value snapshot ──────────────────────────────────────────────
     const [inventoryAgg] = await Product.aggregate([
+        { $match: { shop: new mongoose.Types.ObjectId(shopId) } },
         {
             $group: {
                 _id: null,
@@ -218,7 +220,7 @@ export async function getFinancialReport({ from, to } = {}) {
     ]);
 
     // ── 8. Expense aggregation ───────────────────────────────────────────────────
-    const expenseMatch = {};
+    const expenseMatch = { shop: new mongoose.Types.ObjectId(shopId) };
     if (dateQ) expenseMatch.date = dateQ;
     const [expenseAgg] = await Expense.aggregate([
         { $match: expenseMatch },

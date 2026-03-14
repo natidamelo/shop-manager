@@ -36,6 +36,7 @@ const saleSchema = new mongoose.Schema(
     notes: { type: String },
     items: [saleItemSchema],
     payments: [paymentSchema],
+    shop: { type: mongoose.Schema.Types.ObjectId, ref: 'Shop', required: true },
   },
   { timestamps: true, toJSON: { virtuals: true } }
 );

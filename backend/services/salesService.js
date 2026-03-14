@@ -31,7 +31,8 @@ function formatSale(s) {
 }
 
 export async function getAllSales(filters = {}) {
-  const query = {};
+  const query = { shop: filters.shopId };
+  if (!filters.shopId) return [];
   if (filters.from) query.createdAt = { $gte: new Date(filters.from) };
   if (filters.to) {
     query.createdAt = query.createdAt || {};
@@ -55,8 +56,8 @@ export async function getAllSales(filters = {}) {
   }));
 }
 
-export async function getSaleById(id) {
-  const sale = await Sale.findById(id)
+export async function getSaleById(id, shopId) {
+  const sale = await Sale.findOne({ _id: id, shop: shopId })
     .populate('customer', 'name phone email')
     .lean();
   if (!sale) return null;
@@ -71,12 +72,12 @@ export async function getSaleById(id) {
   return formatSale({ ...sale, items });
 }
 
-export async function createSale(data, userId) {
+export async function createSale(data, userId, shopId) {
   const saleNumber = generateSaleNumber();
 
   const items = [];
   for (const item of data.items || []) {
-    const product = await Product.findById(item.product_id);
+    const product = await Product.findOne({ _id: item.product_id, shop: shopId });
     if (!product) throw new Error(`Product ${item.product_id} not found`);
     items.push({
       product: item.product_id,
@@ -86,7 +87,7 @@ export async function createSale(data, userId) {
       unit_cost: product.cost_price || 0,
       subtotal: item.subtotal,
     });
-    await Product.findByIdAndUpdate(item.product_id, {
+    await Product.findOneAndUpdate({ _id: item.product_id, shop: shopId }, {
       $inc: { stock_quantity: -item.quantity },
       $set: { updatedAt: new Date() },
     });
@@ -118,13 +119,14 @@ export async function createSale(data, userId) {
     notes: data.notes || undefined,
     items,
     payments: initialPayments,
+    shop: shopId,
   });
 
-  return getSaleById(sale._id);
+  return getSaleById(sale._id, shopId);
 }
 
-export async function addPayment(saleId, paymentData) {
-  const sale = await Sale.findById(saleId);
+export async function addPayment(saleId, paymentData, shopId) {
+  const sale = await Sale.findOne({ _id: saleId, shop: shopId });
   if (!sale) throw new Error('Sale not found');
 
   const paymentAmount = parseFloat(paymentData.amount);
@@ -145,5 +147,5 @@ export async function addPayment(saleId, paymentData) {
   sale.payment_status = paymentStatus;
 
   await sale.save();
-  return getSaleById(sale._id);
+  return getSaleById(sale._id, shopId);
 }

@@ -16,3 +16,15 @@ export async function login(req, res, next) {
     next(err);
   }
 }
+export async function register(req, res, next) {
+  try {
+    const { name, email, password, shopName } = req.body;
+    if (!name || !email || !password || !shopName) {
+      throw new AppError('All fields are required', 400);
+    }
+    const result = await authService.register({ name, email, password, shopName });
+    res.status(201).json(result);
+  } catch (err) {
+    next(err);
+  }
+}

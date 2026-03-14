@@ -1,21 +1,26 @@
+import mongoose from 'mongoose';
 import Product from '../models/Product.js';
 import Sale from '../models/Sale.js';
 
-export async function getDashboardStats() {
+export async function getDashboardStats(shopId) {
   const [totalProducts, totalSales, lowStockCount, totalRevenueResult] = await Promise.all([
-    Product.countDocuments(),
-    Sale.countDocuments(),
-    Product.countDocuments({ $expr: { $lte: ['$stock_quantity', '$low_stock_threshold'] } }),
-    Sale.aggregate([{ $match: { status: 'completed' } }, { $group: { _id: null, total: { $sum: '$total_amount' } } }]),
+    Product.countDocuments({ shop: shopId }),
+    Sale.countDocuments({ shop: shopId }),
+    Product.countDocuments({ shop: shopId, $expr: { $lte: ['$stock_quantity', '$low_stock_threshold'] } }),
+    Sale.aggregate([
+      { $match: { status: 'completed', shop: new mongoose.Types.ObjectId(shopId) } },
+      { $group: { _id: null, total: { $sum: '$total_amount' } } }
+    ]),
   ]);
 
-  const recentSales = await Sale.find()
+  const recentSales = await Sale.find({ shop: shopId })
     .populate('customer', 'name')
     .sort({ createdAt: -1 })
     .limit(10)
     .lean();
 
   const lowStockProducts = await Product.find({
+    shop: shopId,
     $expr: { $lte: ['$stock_quantity', '$low_stock_threshold'] },
   })
     .select('name sku stock_quantity low_stock_threshold')

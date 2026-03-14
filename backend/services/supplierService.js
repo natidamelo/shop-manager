@@ -1,21 +1,20 @@
 import Supplier from '../models/Supplier.js';
 
-export async function getAllSuppliers(search = '') {
-  const query = search
-    ? {
-        $or: [
-          { name: { $regex: search, $options: 'i' } },
-          { email: { $regex: search, $options: 'i' } },
-          { phone: { $regex: search, $options: 'i' } },
-        ],
-      }
-    : {};
+export async function getAllSuppliers(shopId, search = '') {
+  const query = { shop: shopId };
+  if (search) {
+    query.$or = [
+      { name: { $regex: search, $options: 'i' } },
+      { email: { $regex: search, $options: 'i' } },
+      { phone: { $regex: search, $options: 'i' } },
+    ];
+  }
   const suppliers = await Supplier.find(query).sort({ name: 1 }).lean();
   return suppliers.map((s) => ({ ...s, id: s._id.toString() }));
 }
 
-export async function getSupplierById(id) {
-  const supplier = await Supplier.findById(id).lean();
+export async function getSupplierById(id, shopId) {
+  const supplier = await Supplier.findOne({ _id: id, shop: shopId }).lean();
   return supplier ? { ...supplier, id: supplier._id.toString() } : null;
 }
 
@@ -26,6 +25,7 @@ export async function createSupplier(data) {
     email: data.email || undefined,
     address: data.address || undefined,
     notes: data.notes || undefined,
+    shop: data.shopId,
   });
   return { ...supplier.toObject(), id: supplier._id.toString() };
 }
@@ -38,11 +38,11 @@ export async function updateSupplier(id, data) {
   if (data.address !== undefined) update.address = data.address;
   if (data.notes !== undefined) update.notes = data.notes;
 
-  const supplier = await Supplier.findByIdAndUpdate(id, update, { new: true });
+  const supplier = await Supplier.findOneAndUpdate({ _id: id, shop: data.shopId }, update, { new: true });
   return supplier ? { ...supplier.toObject(), id: supplier._id.toString() } : null;
 }
 
-export async function deleteSupplier(id) {
-  const result = await Supplier.findByIdAndDelete(id);
+export async function deleteSupplier(id, shopId) {
+  const result = await Supplier.findOneAndDelete({ _id: id, shop: shopId });
   return result;
 }
