@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import Expense from '../models/Expense.js';
 
 export async function getAllExpenses(filters = {}) {
@@ -13,6 +14,9 @@ export async function getAllExpenses(filters = {}) {
 }
 
 export async function createExpense(data) {
+    if (data.created_by && !mongoose.Types.ObjectId.isValid(data.created_by)) {
+        delete data.created_by;
+    }
     return await Expense.create(data);
 }
 
