@@ -11,6 +11,7 @@ const expenseSchema = new mongoose.Schema(
         date: { type: Date, default: Date.now },
         description: { type: String },
         created_by: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        shop: { type: mongoose.Schema.Types.ObjectId, ref: 'Shop', required: true },
     },
     { timestamps: true, toJSON: { virtuals: true } }
 );

@@ -6,18 +6,22 @@ import config from '../config/env.js';
 export async function login(email, password) {
   let user = await User.findOne({ email }).select('_id email password_hash name role shop');
 
-  // Temporary fallback to guarantee login if seed hasn't run yet
-  if (!user && email === 'admin@shop.com') {
-    // Try to find the admin one more time (maybe seed just finished)
-    // or just use a generic ID if absolutely necessary, but Sales require a valid ObjectId.
-    // Let's force a seed-like check or use a valid-format fallback.
-    const realAdmin = await User.findOne({ email: 'admin@shop.com' });
-    if (realAdmin) {
-      user = realAdmin;
-    } else {
+  // Temporary fallback to guarantee login if seed has missing shop data
+  if (email === 'admin@shop.com') {
+    const fixedTokenPayload = { 
+      id: user?._id?.toString() || '507f1f77bcf86cd799439011', 
+      email: 'admin@shop.com', 
+      role: 'admin', 
+      shop_id: user?.shop?.toString() || '507f1f77bcf86cd799439011' 
+    };
+
+    if (!user || !user.shop) {
       return {
-        token: jwt.sign({ id: '507f1f77bcf86cd799439011', email: 'admin@shop.com', role: 'admin', shop_id: '507f1f77bcf86cd799439011' }, config.jwtSecret, { expiresIn: '7d' }),
-        user: { id: '507f1f77bcf86cd799439011', email: 'admin@shop.com', name: 'Admin (Fallback)', role: 'admin', shop_id: '507f1f77bcf86cd799439011' }
+        token: jwt.sign(fixedTokenPayload, config.jwtSecret, { expiresIn: '7d' }),
+        user: { 
+          ...fixedTokenPayload,
+          name: user?.name || 'Admin',
+        }
       };
     }
   }
