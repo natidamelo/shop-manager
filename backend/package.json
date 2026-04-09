@@ -4,8 +4,12 @@
   "description": "Shop Management API",
   "main": "server.js",
   "type": "module",
+  "engines": {
+    "node": ">=20.0.0 <21.0.0"
+  },
   "scripts": {
-    "start": "node database/seed.js && node server.js",
+    "start": "node server.js",
+    "seed": "node database/seed.js",
     "dev": "node --watch server.js"
   },
   "dependencies": {
